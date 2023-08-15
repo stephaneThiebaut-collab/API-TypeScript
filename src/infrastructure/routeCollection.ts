@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncMiddleware } from "./async-Middleware";
 
-type HttpVerb = "get";
+type HttpVerb = "get" | "post";
 
 interface ControllerInformation  {
     controllerName: string;
@@ -48,8 +48,9 @@ class RouteCollection {
                 const action = controller[a.methodName].bind(controller);
                 const route = `/${c.prefix}/${a.path}`;
                 router[a.httpVerb](route, asyncMiddleware(action));
+                
             });
-        })
+        });
     }
 }
 

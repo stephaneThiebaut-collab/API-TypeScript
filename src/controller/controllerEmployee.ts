@@ -1,25 +1,41 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from 'express';
 import { Controller } from "../decorateur/controller";
-import { Get } from "../decorateur/route";
-import { createDbConnection } from "../middelware/mysqlConnection";
-
+import { Get, Post } from "../decorateur/route";
+import { AddEmployee, executeQuery } from "../middelware/mysqlConnection";
+import { schemaAddEmployee } from "../schema/addEmployee";
 
 @Controller()
 class EmployeeController {
-    @Get()
+    @Get("get-all")
     async getAll(req: Request, res: Response){
-        const connection = await createDbConnection();
+        executeQuery('SELECT * FROM employee')
+        .then((results) => {
+            return res.status(201).json(results);
+        })
+        .catch((error) =>{
+            console.error('Error lors de la requete:', error);
+            return res.status(401).json({message: 'Une erreur est survenue'})
+        })
+    }
+
+    @Post("create-employee")
+    async create(req: Request, res: Response) {
         try {
-            const [rows, fields] = await connection.execute('SELECT * FROM employee');
-            return res.status(201).json(rows)
+            await schemaAddEmployee(req, res);
+            AddEmployee(req.body.firstName, req.body.lastName, req.body.email, req.body.teams)
+            .then(() => {
+                return res.status(201).json({message: "Enmployee ajouter avec succées"})
+            })
+            .catch(() => {
+                return res.status(401).json({message: "Une erreur est survenue"})
+            })
+            
         } catch (error) {
-            return res.status(401).json({message: error})
-        } finally {
-            await connection.end();
+            return res.status(500).json({ error: "Une erreur est survenue lors de la création de l'employé." + error });
         }
     }
+
+
 }
 
-const employee = new EmployeeController;
-
-export { employee }
+export { EmployeeController }
