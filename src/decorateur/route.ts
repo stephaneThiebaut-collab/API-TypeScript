@@ -10,6 +10,9 @@ const Get = (path?: string) => {
     return action("get", path);
 }
 
+const Post = (path?: string) => {
+    return action("post", path);
+}
 
 
-export { Get };
+export { Get, Post };

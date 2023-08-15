@@ -19,6 +19,8 @@ app.use(cors());
 
 // Enregistre le constructeur de classe du contrôleur dans le RouteCollection
 routeCollection.registerController(EmployeeController, "employees");
+// Enregistrement d'une route POST pour la création d'un employé
+
 
 // Configuration des routes
 routeCollection.setupRouter(router);
