@@ -31,9 +31,7 @@ const dbConfig = {
                 email: mysql.escape(email),
                 teams: mysql.escape(teams)
             }
-    
             const query = `INSERT INTO employee (firstName, lastName, email, teams) VALUES (${employee.firstName}, ${employee.lastName}, ${employee.email}, ${employee.teams})`;
-    
             try {
                 await executeQuery(query);
                 resolve();
@@ -43,4 +41,16 @@ const dbConfig = {
         });
     }
 
-    export { executeQuery, AddEmployee }
+    async function selectOneEmployee(id: string): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            const query = `SELECT * FROM employee WHERE id = ${id}`;
+            try {
+                const result = await executeQuery(query);
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    export { executeQuery, AddEmployee, selectOneEmployee }
