@@ -1,6 +1,8 @@
 import mysql from 'mysql2';
 import { config } from "dotenv";
-import { Response } from "express";
+import { Response, query } from "express";
+import { error } from 'console';
+import { EmployeeInformation } from "./interface/interfaceMapEmployee";
 
 config();
 
@@ -23,27 +25,6 @@ const dbConfig = {
         })
     }
 
-    async function AddEmployee(firstName:string, lastName: string, email: string, teams: string){
-        return new Promise((resolve, reject) => {
-            const connection = mysql.createConnection(dbConfig);
-            
-            const employee = {
-                firstName: mysql.escape(firstName), 
-                lastName: mysql.escape(lastName), 
-                email: mysql.escape(email), 
-                teams: mysql.escape(teams)
-            }
+    
 
-            const query = `INSERT INTO employee (firstName, lastName, email, teams) VALUES (${employee.firstName}, ${employee.lastName}, ${employee.email}, ${employee.teams})`;
-
-            connection.execute(query, (error: any, result: Response) => {
-
-            executeQuery(query);
-                if (error) { return reject(error) } 
-                else { resolve(result) }
-                connection.end()
-            })
-        })
-    }
-
-    export { executeQuery, AddEmployee }
+    export { executeQuery }

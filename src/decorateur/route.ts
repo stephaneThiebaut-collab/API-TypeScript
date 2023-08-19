@@ -14,5 +14,13 @@ const Post = (path?: string) => {
     return action("post", path);
 }
 
+const Put = (path?: string) => {
+    return action("put", path);
+}
 
-export { Get, Post };
+const Delete = (path?: string) => {
+    return action("delete", path);
+}
+
+
+export { Get, Post, Put, Delete };
