@@ -1,7 +1,8 @@
 import { Response, Request, NextFunction } from 'express';
 import { Controller } from "../decorateur/controller";
-import { Get, Post, Put } from "../decorateur/route";
-import { AddEmployee, executeQuery, selectOneEmployee, updateOneEmployee } from "../middelware/mysqlConnection";
+import { Delete, Get, Post, Put } from "../decorateur/route";
+import { executeQuery } from "../middelware/mysqlConnection";
+import { AddEmployee,  selectOneEmployee, updateOneEmployee, deleteOneEmployee} from "../middelware/requeteSqlEmployee";
 import { schemaAddEmployee, schemaModifyEmployee } from "../schema/addEmployee";
 
 
@@ -11,7 +12,7 @@ class EmployeeController {
     async getAll(req: Request, res: Response){
         executeQuery('SELECT * FROM employee')
             .then((results) => { return res.status(201).json(results); })
-            .catch((error) =>{ return res.status(401).json({message: 'Une erreur est survenue'}) })
+            .catch(() =>{ return res.status(401).json({message: 'Une erreur est survenue'}) })
     }
 
     @Post("create-employee")
@@ -21,11 +22,11 @@ class EmployeeController {
             .then(() => {
                 AddEmployee(req.body.firstName, req.body.lastName, req.body.email, req.body.teams)
                     .then(() => { return res.status(201).json({message: "Employée ajouté avec success!"}) })
-                    .catch((error) => { return res.status(401).json({message: `Une erreur est survenue ${error}`}) })
+                    .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
             })
-            .catch((error) => { return res.status(401).json({message: `Une erreur est survenue ${error}`}) })
-        } catch (error) {
-            return res.status(500).json({ error: `Une erreur est survenue lors de la création de l'employé: ${error}` });
+            .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
+        } catch  {
+            return res.status(500).json({ message: `Une erreur est survenue lors de la création de l'employé` });
         }
     }
 
@@ -38,7 +39,7 @@ class EmployeeController {
                 }
                 return res.status(201).json(result) 
             })
-            .catch((error) => { return res.status(401).json({message: `Une erreur est survenue ${error}`}) })
+            .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
     }
 
     @Put('modify-employee/:id')
@@ -47,15 +48,21 @@ class EmployeeController {
             await schemaModifyEmployee(req, res)
             .then(() => {
                 updateOneEmployee(req.params.id, req.body.firstName, req.body.lastName, req.body.email, req.body.teams)
-                .then((result) => { res.status(201).json({message: "L'employee a été modifié avec success!"}) })
-                .catch((error) => { return res.status(401).json({message: `Une erreur est survenue ${error}`}) })
+                    .then(() => { res.status(201).json({message: "L'employee a été modifié avec success!"}) })
+                    .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
             })
-            .catch(() => {})
+            .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
         } catch {
             return res.status(401).json({message: `Une erreur est survenue lors de la modification de l'employee`})
         }
     }
 
+    @Delete('delete-employee/:id')
+    async deleteOneEmployee(req: Request, res: Response){
+        deleteOneEmployee(req.params.id)
+            .then(() => { res.status(201).json({message: "L'employee a été supprimé avec success!"}) })
+            .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
+    }
 }
 
 export { EmployeeController }

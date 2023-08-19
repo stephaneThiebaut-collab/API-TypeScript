@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncMiddleware } from "./async-Middleware";
 
-type HttpVerb = "get" | "post" | "put";
+type HttpVerb = "get" | "post" | "put" | "delete";
 
 interface ControllerInformation  {
     controllerName: string;
