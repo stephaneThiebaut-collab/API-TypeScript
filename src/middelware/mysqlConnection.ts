@@ -23,27 +23,24 @@ const dbConfig = {
         })
     }
 
-    async function AddEmployee(firstName:string, lastName: string, email: string, teams: string){
-        return new Promise((resolve, reject) => {
-            const connection = mysql.createConnection(dbConfig);
-            
+    async function AddEmployee(firstName: string, lastName: string, email: string, teams: string): Promise<void> {
+        return new Promise(async (resolve, reject) => {
             const employee = {
-                firstName: mysql.escape(firstName), 
-                lastName: mysql.escape(lastName), 
-                email: mysql.escape(email), 
+                firstName: mysql.escape(firstName),
+                lastName: mysql.escape(lastName),
+                email: mysql.escape(email),
                 teams: mysql.escape(teams)
             }
-
+    
             const query = `INSERT INTO employee (firstName, lastName, email, teams) VALUES (${employee.firstName}, ${employee.lastName}, ${employee.email}, ${employee.teams})`;
-
-            connection.execute(query, (error: any, result: Response) => {
-
-            executeQuery(query);
-                if (error) { return reject(error) } 
-                else { resolve(result) }
-                connection.end()
-            })
-        })
+    
+            try {
+                await executeQuery(query);
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     export { executeQuery, AddEmployee }
