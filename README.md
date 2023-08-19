@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # API TypeScript
 
 ## Request "GET"
