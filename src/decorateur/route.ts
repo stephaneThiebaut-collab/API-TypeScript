@@ -14,5 +14,8 @@ const Post = (path?: string) => {
     return action("post", path);
 }
 
+const Put = (path?: string) => {
+    return action("put", path);
+}
 
-export { Get, Post };
+export { Get, Post, Put };

@@ -4,6 +4,7 @@
 
 - VERB GET 
 
+url: 
 ```bash 
 http://localhost:3000/employees/get-all
 ```
@@ -25,6 +26,7 @@ res :
 
 - VERB POST
 
+url: 
 ```bash
 http://localhost:3000/employees/create-employee
 ```
@@ -45,8 +47,9 @@ http://localhost:3000/employees/create-employee
 
 ### REQUEST "GET/:id"
 
-VERB GET 
+- VERB GET 
 
+url: 
 ```bash 
 http://localhost:3000/employees/get-one/:id
 ```
@@ -61,6 +64,17 @@ http://localhost:3000/employees/get-one/:id
         "teams": string
     }
 ]
+```
+
+---
+
+### REQUEST "PUT/:id"
+
+- VERB PUT 
+
+url :
+```bash 
+"http://localhost:3000/employees/modify-employee/:id"
 ```
 
 

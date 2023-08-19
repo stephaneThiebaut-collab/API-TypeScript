@@ -1,8 +1,8 @@
 import { Response, Request, NextFunction } from 'express';
 import { Controller } from "../decorateur/controller";
-import { Get, Post } from "../decorateur/route";
-import { AddEmployee, executeQuery, selectOneEmployee } from "../middelware/mysqlConnection";
-import { schemaAddEmployee } from "../schema/addEmployee";
+import { Get, Post, Put } from "../decorateur/route";
+import { AddEmployee, executeQuery, selectOneEmployee, updateOneEmployee } from "../middelware/mysqlConnection";
+import { schemaAddEmployee, schemaModifyEmployee } from "../schema/addEmployee";
 
 
 @Controller()
@@ -39,6 +39,21 @@ class EmployeeController {
                 return res.status(201).json(result) 
             })
             .catch((error) => { return res.status(401).json({message: `Une erreur est survenue ${error}`}) })
+    }
+
+    @Put('modify-employee/:id')
+    async modifyOneEmployee(req: Request, res: Response){
+        try { 
+            await schemaModifyEmployee(req, res)
+            .then(() => {
+                updateOneEmployee(req.params.id, req.body.firstName, req.body.lastName, req.body.email, req.body.teams)
+                .then((result) => { res.status(201).json({message: "L'employee a été modifié avec success!"}) })
+                .catch((error) => { return res.status(401).json({message: `Une erreur est survenue ${error}`}) })
+            })
+            .catch(() => {})
+        } catch {
+            return res.status(401).json({message: `Une erreur est survenue lors de la modification de l'employee`})
+        }
     }
 
 }

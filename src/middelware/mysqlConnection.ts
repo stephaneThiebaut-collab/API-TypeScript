@@ -1,6 +1,8 @@
 import mysql from 'mysql2';
 import { config } from "dotenv";
-import { Response } from "express";
+import { Response, query } from "express";
+import { error } from 'console';
+import { EmployeeInformation } from "./interfaceMapEmployee";
 
 config();
 
@@ -53,4 +55,31 @@ const dbConfig = {
         });
     }
 
-    export { executeQuery, AddEmployee, selectOneEmployee }
+    async function updateOneEmployee(id: string, firstName: string, lastName: string, email: string, teams: string): Promise<any> {
+        return new Promise(async (resolve, rejects) => {
+            const select = `SELECT * FROM employee WHERE id = ${id}`;
+            try {
+                const resultSelect = await executeQuery(select)
+                // const employee = {
+                //     firstName: mysql.escape(firstName),
+                //     lastName: mysql.escape(lastName),
+                //     email: mysql.escape(email),
+                //     teams: mysql.escape(teams)
+                // }
+
+                if (mysql.escape(firstName) === "''") { firstName = resultSelect.map((obj: EmployeeInformation) => obj.firstName)[0]; }
+                if (mysql.escape(lastName) === "''") { lastName = resultSelect.map((obj: EmployeeInformation) => obj.lastName)[0]; }
+                if (mysql.escape(email) === "''") { email = resultSelect.map((obj: EmployeeInformation) => obj.email)[0]; }
+                if (mysql.escape(teams) === "''") { teams = resultSelect.map((obj: EmployeeInformation) => obj.teams)[0]; }
+                
+                const update = `UPDATE employee SET firstName = ${mysql.escape(firstName)}, lastName = ${mysql.escape(lastName)}, email = ${mysql.escape(email)}, teams = ${mysql.escape(teams)} WHERE id = ${id}`;
+                console.log(update)
+                const resultUpdate = await executeQuery(update)
+                resolve(resultUpdate)
+            } catch {
+                rejects(error)
+            }
+        })
+    }
+
+    export { executeQuery, AddEmployee, selectOneEmployee, updateOneEmployee }
