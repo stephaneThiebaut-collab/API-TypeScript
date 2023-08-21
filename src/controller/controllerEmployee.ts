@@ -1,13 +1,11 @@
-import { Response, Request, NextFunction } from 'express';
+import { Response, Request } from 'express';
 import { Controller } from "../decorateur/controller";
 import { Delete, Get, Post, Put } from "../decorateur/route";
 import { executeQuery } from "../middelware/mysqlConnection";
-import { AddEmployee,  selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee} from "../middelware/requeteSqlEmployee";
+import { AddEmployee,  selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee, creationTacheRequest } from "../middelware/requeteSqlEmployee";
 import { schemaAddEmployee, schemaConnectionEmployee, schemaModifyEmployee } from "../schema/schemaEmployee";
-import jwt from "jsonwebtoken";
-import { generateToken } from '../middelware/token/employeeToken';
-
-
+import { generateToken, verificationToken } from '../middelware/token/employeeToken';
+import { schemaCreationTache } from '../schema/schemaTacheEmployee';
 
 
 @Controller()
@@ -22,14 +20,11 @@ class EmployeeController {
     @Post("create-employee")
     async create(req: Request, res: Response) {
         try {
-            await schemaAddEmployee(req, res)
-            .then(() => {
-                AddEmployee(req.body.firstName, req.body.lastName, req.body.email, req.body.teams, req.body.password)
-                    .then(() => { return res.status(201).json({message: "Employée ajouté avec success!"}) })
-                    .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
-            })
-            .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
-        } catch  {
+            await schemaAddEmployee(req, res);
+            AddEmployee(req.body.firstName, req.body.lastName, req.body.email, req.body.teams, req.body.password)
+                .then(() => { return res.status(201).json({message: "Employée ajouté avec success!"}) })
+                .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
+        } catch (error) {
             return res.status(500).json({ message: `Une erreur est survenue lors de la création de l'employé` });
         }
     }
@@ -71,25 +66,38 @@ class EmployeeController {
     @Post('connection')
     async connectionEmployee(req: Request, res: Response){
 
-        schemaConnectionEmployee(req, res)
-            .then(() => {
-                functionConnectionEmployee(req.body.email, req.body.password)
-                    .then(() => {
-                        generateToken()
-                        .then((token) => {
-                            return res.status(201).json({message: "Vous etes connecter", token: token})
-                        })
-                        .catch(() => {
-                            return res.status(401).json({message: "Une erreur est survenue lors de la generation de token"})
-                        })
-                    })
-                    .catch(() => {
-                        return res.status(401).json({message: "L'un de vos identifiant n'est pas valide"})
-                    })
-            })
-            .catch(() => {
-                return res.status(401).json({message: "Une erreur est survenue"})
-            })
+        try {
+            await schemaConnectionEmployee(req, res);
+
+            const result = await functionConnectionEmployee(req.body.email, req.body.password);
+            const id = result[0].id
+
+            if (!result) {
+                return res.status(401).json({ message: "L'un de vos identifiants n'est pas valide" });
+            }
+
+            const token = await generateToken(id);
+            return res.status(201).json({ message: "Vous êtes connecté", token: token });
+        } catch (error) {
+            console.error("Erreur lors de la connexion :", error);
+            return res.status(500).json({ message: "Une erreur est survenue lors de la connexion" });
+        }
+    }
+
+    @Post('creation-tache')
+    async creationTache(req: Request, res: Response) {
+        const token = req.headers.authorization?.split(' ')[1]
+        try {
+            const tokenVerifier = await verificationToken(token);
+            await schemaCreationTache(req, res);
+            
+            creationTacheRequest(tokenVerifier?.id, req.body.assignerAquelEmployee, req.body.description)
+                .then(() => { return res.status(201).json({message: 'La tache a bien été ajouter'}) })
+                .catch((error) => { return res.status(500).json({message: 'Une erreur est survenue lors de la creation de la tache' + error}) })
+        } catch (error) {
+            return res.status(500).json({message: "Token invalid ou inactif!"})
+        }
+
     }
 }
 

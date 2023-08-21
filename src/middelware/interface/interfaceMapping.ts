@@ -7,4 +7,10 @@ interface EmployeeInformation {
     password: string
 }
 
-export { EmployeeInformation }
+interface TokenPayload {
+    id: number;
+    iat: number;
+    exp: number;
+}
+
+export { EmployeeInformation, TokenPayload }

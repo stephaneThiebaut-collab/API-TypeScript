@@ -1,18 +1,26 @@
-import { EmployeeInformation } from "./interface/interfaceMapEmployee";
+import { EmployeeInformation } from "./interface/interfaceMapping";
 import { executeQuery } from "./mysqlConnection";
 import mysql from 'mysql2';
 import { error } from 'console';
 import { comparePasswordHash, passwordHash } from "./bcryptPassword/password";
+import { v4 as uuidv4 } from 'uuid';
 
-
-async function functionConnectionEmployee(email: string, password: string): Promise<boolean> {
+async function functionConnectionEmployee(email: string, password: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const result = await comparePasswordHash(email, password);
+            const query = `SELECT * FROM employee WHERE email = ${mysql.escape(email)}`;
+            const resultEmployee = await executeQuery(query);
+            
+            if (resultEmployee.length === 0) {
+                throw new Error('Aucun employé trouvé avec cet e-mail');
+            }
+            
+            const passwordEmployee = resultEmployee[0].password;
+            const result = await comparePasswordHash(password, passwordEmployee);
             if (result) {
-                resolve(result)
+                resolve(resultEmployee)
             } else {
-                reject(false)
+                reject()
             }
         } catch (error) {
             reject(error)
@@ -96,4 +104,29 @@ async function deleteOneEmployee(id: string): Promise<void> {
     })
 }
 
-export { AddEmployee, selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee }
+async function creationTacheRequest(id:any, assignerAquelEmployee: number, description: string): Promise<void> {
+    return new Promise(async (resolve, rejects) => {
+        const query = `SELECT * FROM employee WHERE id = ${id}`;
+        try {
+            const result = await executeQuery(query);
+            if (result.length === 0) {
+                rejects(error);
+            }
+            if (result[0].admin === 1) {
+                const tache = {
+                    assignerAquelEmployee: mysql.escape(assignerAquelEmployee),
+                    description: mysql.escape(description)
+                }
+                const newTache = `INSERT INTO tacheEmployee(uuid, assignerAquelEmployee, description) VALUES ('${uuidv4()}', ${tache.assignerAquelEmployee}, ${tache.description})`;
+                const insertTache = await executeQuery(newTache);
+                resolve(insertTache)
+            } else {
+                rejects(error)
+            }
+        } catch (error) {
+            rejects(error)
+        }
+    })
+}
+
+export { AddEmployee, selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee, creationTacheRequest }

@@ -1,22 +1,28 @@
 import jwt from "jsonwebtoken";
+import { TokenPayload } from "../interface/interfaceMapping";
 
-async function generateToken(): Promise<string> {
-    return new Promise (async (resolve, reject) => {
+async function generateToken(id: number): Promise<string> {
         const payload = {
-            data: 'foobar'
+            id: id
         };
         const secret = 'yourSecretKey';
-        const expiresIn = 60 * 60;
+        const expiresIn = 60 * 60; //1H
     
         try {
             const token = await jwt.sign(payload, secret, { expiresIn });
-            // console.log(token);
-            resolve(token)
+            return token;
         } catch (error) {
-            // console.error('Erreur lors de la génération du token :', error);
-            reject(error)
+            throw new Error('Une erreur est survenue')
         }
-    })
 }
 
-export { generateToken }
+async function verificationToken(token: any): Promise<TokenPayload | null> {
+    try {
+        var decoded = jwt.verify(token, 'yourSecretKey') as TokenPayload;
+        return decoded;
+    } catch (error) {
+        throw new Error('Token invalide')
+    }
+}
+
+export { generateToken, verificationToken }
