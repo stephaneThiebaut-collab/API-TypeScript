@@ -1,4 +1,4 @@
-import { EmployeeInformation } from "./interface/interfaceMapEmployee";
+import { EmployeeInformation } from "./interface/interfaceMapping";
 import { executeQuery } from "./mysqlConnection";
 import mysql from 'mysql2';
 import { error } from 'console';

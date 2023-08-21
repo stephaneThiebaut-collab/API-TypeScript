@@ -4,7 +4,7 @@ import { Delete, Get, Post, Put } from "../decorateur/route";
 import { executeQuery } from "../middelware/mysqlConnection";
 import { AddEmployee,  selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee} from "../middelware/requeteSqlEmployee";
 import { schemaAddEmployee, schemaConnectionEmployee, schemaModifyEmployee } from "../schema/schemaEmployee";
-import { generateToken } from '../middelware/token/employeeToken';
+import { generateToken, verificationToken } from '../middelware/token/employeeToken';
 
 @Controller()
 class EmployeeController {
@@ -79,6 +79,19 @@ class EmployeeController {
             console.error("Erreur lors de la connexion :", error);
             return res.status(500).json({ message: "Une erreur est survenue lors de la connexion" });
         }
+    }
+
+    @Post('creation-tache')
+    async creationTache(req: Request, res: Response) {
+        const token = req.headers.authorization?.split(' ')[1]
+        try {
+            const tokenVerifier = await verificationToken(token);
+            
+            res.status(201).json({message: tokenVerifier?.data})
+        } catch (error) {
+            return res.status(500).json({message: "Token invalid ou inactif!"})
+        }
+
     }
 }
 
