@@ -10,7 +10,8 @@ async function schemaAddEmployee(req: Request, res: Response): Promise<void> {
                 firstName: Joi.string().required(),
                 lastName: Joi.string().required(),
                 email: Joi.string().required(),
-                teams: Joi.string().required(),
+                teams: Joi.number().required(),
+                password: Joi.string().required()
             });
 
             const validationResult = schemaTest.validate(req.body);
@@ -49,4 +50,25 @@ async function schemaModifyEmployee(req: Request, res: Response): Promise<void> 
     })
 }
 
-export { schemaAddEmployee, schemaModifyEmployee };
+async function schemaConnectionEmployee(req: Request, res: Response): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        try {
+            const schemaValideConnectionEmployee = Joi.object({
+                email: Joi.string().required(),
+                password: Joi.string().required()
+            });
+
+            const validationResult = schemaValideConnectionEmployee.validate(req.body);
+
+            if (validationResult.error) {
+                return res.status(400).json({ error: validationResult.error.details });
+            } else {
+                resolve();
+            }
+        } catch (error) {
+            return res.status(500).json({ error: "Une erreur est survenue lors de la validation du schéma." });
+        }
+    });
+}
+
+export { schemaAddEmployee, schemaModifyEmployee, schemaConnectionEmployee };

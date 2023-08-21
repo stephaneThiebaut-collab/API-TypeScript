@@ -1,6 +1,17 @@
-#!/bin/bash
-
 # API TypeScript
+
+
+---
+
+Start server
+Dependence nodemon 
+```bash 
+npm install --save-dev nodemon
+```
+```bash
+npm run start
+```
+---
 
 ## Request "GET"
 
@@ -52,8 +63,8 @@ Responses :
         "teams": string
     }
 ]
-- Response: Si l'id existe dans la base de données : une reponse sous tableau vous sera retourné sinon une erreur sera retournée
 ```
+- Response: Si l'id existe dans la base de données : une reponse sous tableau vous sera retourné sinon une erreur sera retournée
 
 ---
 

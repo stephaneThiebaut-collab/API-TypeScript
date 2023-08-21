@@ -2,18 +2,40 @@ import { EmployeeInformation } from "./interface/interfaceMapEmployee";
 import { executeQuery } from "./mysqlConnection";
 import mysql from 'mysql2';
 import { error } from 'console';
+import { comparePasswordHash, passwordHash } from "./bcryptPassword/password";
 
-async function AddEmployee(firstName: string, lastName: string, email: string, teams: string): Promise<void> {
+
+async function functionConnectionEmployee(email: string, password: string): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
-        const employee = {
-            firstName: mysql.escape(firstName),
-            lastName: mysql.escape(lastName),
-            email: mysql.escape(email),
-            teams: mysql.escape(teams)
-        }
-        const query = `INSERT INTO employee (firstName, lastName, email, teams) VALUES (${employee.firstName}, ${employee.lastName}, ${employee.email}, ${employee.teams})`;
         try {
+            const result = await comparePasswordHash(email, password);
+            if (result) {
+                resolve(result)
+            } else {
+                reject(false)
+            }
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+async function AddEmployee(firstName: string, lastName: string, email: string, teams: string, password: string): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const hashedPassword = await passwordHash(password);
+
+            const employee = {
+                firstName: mysql.escape(firstName),
+                lastName: mysql.escape(lastName),
+                email: mysql.escape(email),
+                teams: mysql.escape(teams),
+                password: hashedPassword
+            };
+
+            const query = `INSERT INTO employee (firstName, lastName, email, teams, password) VALUES (${employee.firstName}, ${employee.lastName}, ${employee.email}, ${employee.teams}, ${mysql.escape(employee.password)})`;
             await executeQuery(query);
+
             resolve();
         } catch (error) {
             reject(error);
@@ -33,7 +55,7 @@ async function selectOneEmployee(id: string): Promise<any> {
     });
 }
 
-async function updateOneEmployee(id: string, firstName: string, lastName: string, email: string, teams: string): Promise<any> {
+async function updateOneEmployee(id: string, firstName: string, lastName: string, email: string, teams: string): Promise<void> {
     return new Promise(async (resolve, rejects) => {
         const select = `SELECT * FROM employee WHERE id = ${id}`;
         try {
@@ -55,7 +77,7 @@ async function updateOneEmployee(id: string, firstName: string, lastName: string
     })
 }
 
-async function deleteOneEmployee(id: string): Promise<any> {
+async function deleteOneEmployee(id: string): Promise<void> {
     return new Promise(async (resolve, rejects) => {
         const query = `SELECT * FROM employee WHERE id = ${id}`;
         try {
@@ -74,4 +96,4 @@ async function deleteOneEmployee(id: string): Promise<any> {
     })
 }
 
-export { AddEmployee, selectOneEmployee, updateOneEmployee, deleteOneEmployee }
+export { AddEmployee, selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee }

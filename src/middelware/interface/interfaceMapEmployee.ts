@@ -3,7 +3,8 @@ interface EmployeeInformation {
     firstName: string,
     lastName: string, 
     email: string, 
-    teams: string
+    teams: string,
+    password: string
 }
 
 export { EmployeeInformation }
