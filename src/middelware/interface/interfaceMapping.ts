@@ -8,7 +8,7 @@ interface EmployeeInformation {
 }
 
 interface TokenPayload {
-    data: string;
+    id: number;
     iat: number;
     exp: number;
 }

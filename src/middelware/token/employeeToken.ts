@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import { TokenPayload } from "../interface/interfaceMapping";
 
-async function generateToken(): Promise<string> {
+async function generateToken(id: number): Promise<string> {
         const payload = {
-            data: 'foobar'
+            id: id
         };
         const secret = 'yourSecretKey';
         const expiresIn = 60 * 60; //1H

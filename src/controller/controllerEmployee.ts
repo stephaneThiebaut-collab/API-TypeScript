@@ -1,10 +1,12 @@
-import { Response, Request, NextFunction } from 'express';
+import { Response, Request } from 'express';
 import { Controller } from "../decorateur/controller";
 import { Delete, Get, Post, Put } from "../decorateur/route";
 import { executeQuery } from "../middelware/mysqlConnection";
-import { AddEmployee,  selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee} from "../middelware/requeteSqlEmployee";
+import { AddEmployee,  selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee, creationTacheRequest } from "../middelware/requeteSqlEmployee";
 import { schemaAddEmployee, schemaConnectionEmployee, schemaModifyEmployee } from "../schema/schemaEmployee";
 import { generateToken, verificationToken } from '../middelware/token/employeeToken';
+import { schemaCreationTache } from '../schema/schemaTacheEmployee';
+
 
 @Controller()
 class EmployeeController {
@@ -68,12 +70,13 @@ class EmployeeController {
             await schemaConnectionEmployee(req, res);
 
             const result = await functionConnectionEmployee(req.body.email, req.body.password);
-            console.log(result)
+            const id = result[0].id
+
             if (!result) {
                 return res.status(401).json({ message: "L'un de vos identifiants n'est pas valide" });
             }
 
-            const token = await generateToken();
+            const token = await generateToken(id);
             return res.status(201).json({ message: "Vous êtes connecté", token: token });
         } catch (error) {
             console.error("Erreur lors de la connexion :", error);
@@ -86,8 +89,11 @@ class EmployeeController {
         const token = req.headers.authorization?.split(' ')[1]
         try {
             const tokenVerifier = await verificationToken(token);
+            await schemaCreationTache(req, res);
             
-            res.status(201).json({message: tokenVerifier?.data})
+            creationTacheRequest(tokenVerifier?.id, req.body.assignerAquelEmployee, req.body.description)
+                .then(() => { return res.status(201).json({message: 'La tache a bien été ajouter'}) })
+                .catch((error) => { return res.status(500).json({message: 'Une erreur est survenue lors de la creation de la tache' + error}) })
         } catch (error) {
             return res.status(500).json({message: "Token invalid ou inactif!"})
         }
