@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 
 async function generateToken(): Promise<string> {
-    return new Promise (async (resolve, reject) => {
         const payload = {
             data: 'foobar'
         };
@@ -10,13 +9,10 @@ async function generateToken(): Promise<string> {
     
         try {
             const token = await jwt.sign(payload, secret, { expiresIn });
-            // console.log(token);
-            resolve(token)
+            return token;
         } catch (error) {
-            // console.error('Erreur lors de la génération du token :', error);
-            reject(error)
+            throw new Error('Une erreur est survenue')
         }
-    })
 }
 
 export { generateToken }

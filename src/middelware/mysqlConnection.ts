@@ -1,8 +1,6 @@
 import mysql from 'mysql2';
 import { config } from "dotenv";
 import { Response, query } from "express";
-import { error } from 'console';
-import { EmployeeInformation } from "./interface/interfaceMapEmployee";
 
 config();
 
