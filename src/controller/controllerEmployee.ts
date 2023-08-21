@@ -2,8 +2,12 @@ import { Response, Request, NextFunction } from 'express';
 import { Controller } from "../decorateur/controller";
 import { Delete, Get, Post, Put } from "../decorateur/route";
 import { executeQuery } from "../middelware/mysqlConnection";
-import { AddEmployee,  selectOneEmployee, updateOneEmployee, deleteOneEmployee} from "../middelware/requeteSqlEmployee";
-import { schemaAddEmployee, schemaModifyEmployee } from "../schema/addEmployee";
+import { AddEmployee,  selectOneEmployee, updateOneEmployee, deleteOneEmployee, functionConnectionEmployee} from "../middelware/requeteSqlEmployee";
+import { schemaAddEmployee, schemaConnectionEmployee, schemaModifyEmployee } from "../schema/schemaEmployee";
+import jwt from "jsonwebtoken";
+import { generateToken } from '../middelware/token/employeeToken';
+
+
 
 
 @Controller()
@@ -20,7 +24,7 @@ class EmployeeController {
         try {
             await schemaAddEmployee(req, res)
             .then(() => {
-                AddEmployee(req.body.firstName, req.body.lastName, req.body.email, req.body.teams)
+                AddEmployee(req.body.firstName, req.body.lastName, req.body.email, req.body.teams, req.body.password)
                     .then(() => { return res.status(201).json({message: "Employée ajouté avec success!"}) })
                     .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
             })
@@ -62,6 +66,30 @@ class EmployeeController {
         deleteOneEmployee(req.params.id)
             .then(() => { res.status(201).json({message: "L'employee a été supprimé avec success!"}) })
             .catch(() => { return res.status(401).json({message: `Une erreur est survenue`}) })
+    }
+
+    @Post('connection')
+    async connectionEmployee(req: Request, res: Response){
+
+        schemaConnectionEmployee(req, res)
+            .then(() => {
+                functionConnectionEmployee(req.body.email, req.body.password)
+                    .then(() => {
+                        generateToken()
+                        .then((token) => {
+                            return res.status(201).json({message: "Vous etes connecter", token: token})
+                        })
+                        .catch(() => {
+                            return res.status(401).json({message: "Une erreur est survenue lors de la generation de token"})
+                        })
+                    })
+                    .catch(() => {
+                        return res.status(401).json({message: "L'un de vos identifiant n'est pas valide"})
+                    })
+            })
+            .catch(() => {
+                return res.status(401).json({message: "Une erreur est survenue"})
+            })
     }
 }
 
