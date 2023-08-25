@@ -5,6 +5,7 @@ import cors from "cors";
 import { config } from "dotenv";
 import { routeCollection } from "./infrastructure/routeCollection";
 import { EmployeeController } from "./controller/controllerEmployee";
+import { TaskClass } from "./controller/task";
 
 config();
 
@@ -19,8 +20,7 @@ app.use(cors());
 
 // Enregistre le constructeur de classe du contrôleur dans le RouteCollection
 routeCollection.registerController(EmployeeController, "employees");
-// Enregistrement d'une route POST pour la création d'un employé
-
+routeCollection.registerController(TaskClass, "task");
 
 // Configuration des routes
 routeCollection.setupRouter(router);
