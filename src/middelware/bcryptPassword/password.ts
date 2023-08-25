@@ -1,6 +1,4 @@
 import bcrypt from "bcrypt";
-import mysql from 'mysql2';
-import { executeQuery } from "../mysqlConnection";
 
 async function passwordHash(password: string): Promise<string> {
     const hashedPassword = await bcrypt.hash(password, 10);
